@@ -26,25 +26,38 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
-  ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : []),
+
+  // Vercel Domains
+  "https://taxpal-livid.vercel.app",
+  "https://taxpal-jhavny5tb-sasidhar800s-projects.vercel.app",
+  "https://taxpal-ggc5icou8-sasidhar800s-projects.vercel.app",
+
+  ...(process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(",").map((url) => url.trim())
+    : []),
 ];
 
-// =============================
-// Middleware
-// =============================
 app.use(
   cors({
-    origin(origin, callback) {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin)
-      ) {
+    origin: function (origin, callback) {
+      // Allow requests without origin (Postman, mobile apps, etc.)
+      if (!origin) {
         return callback(null, true);
       }
 
-      return callback(
-        new Error("Not allowed by CORS")
-      );
+      // Allow localhost
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow all Vercel preview deployments
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      console.log("Blocked Origin:", origin);
+
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })

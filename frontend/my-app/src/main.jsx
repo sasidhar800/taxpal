@@ -17,9 +17,7 @@ createRoot(
       position="top-right"
       reverseOrder={false}
     />
-
     <App />
 
   </StrictMode>
-
 );
